@@ -44,13 +44,15 @@ export default function AdminPage() {
   const handleToggleActive = async (id: string, current: boolean) => {
     // Al activar, pone stock en 10 por defecto. El admin lo ajusta con la ruleta.
     const newQty = !current ? 10 : 0
-    await supabase.from('platos').update({ estado_activo: !current, cantidad_diaria: newQty }).eq('id', id)
-    fetchData()
+    // Actualización optimista
+    setPlatos(prev => prev.map(p => p.id === id ? { ...p, estado_activo: !current, cantidad_diaria: newQty } : p))
+    supabase.from('platos').update({ estado_activo: !current, cantidad_diaria: newQty }).eq('id', id).then(() => fetchData())
   }
 
   const handleToggleEnsalada = async (id: string, current: boolean) => {
-    await supabase.from('ensaladas').update({ estado_activo: !current }).eq('id', id)
-    fetchData()
+    // Actualización optimista
+    setEnsaladas(prev => prev.map(e => e.id === id ? { ...e, estado_activo: !current } : e))
+    supabase.from('ensaladas').update({ estado_activo: !current }).eq('id', id).then(() => fetchData())
   }
 
   const handleUpdateQty = async (id: string, qty: number) => {
@@ -264,9 +266,8 @@ export default function AdminPage() {
                               onChange={() => handleToggleActive(plato.id, plato.estado_activo)}
                             />
                             <div className="w-11 h-6 bg-gray-300 rounded-full peer peer-checked:bg-green-500 transition-colors"></div>
-                            <div className="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition-transform peer-checked:translate-x-5"></div>
+                            <div className="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition-transform peer-checked:translate-x-5 shadow-sm"></div>
                           </div>
-                          <span className="ml-2 text-xs font-bold text-gray-700">{plato.estado_activo ? 'Activo' : 'Off'}</span>
                         </label>
                       </div>
                     </>
@@ -337,9 +338,8 @@ export default function AdminPage() {
                           onChange={() => handleToggleEnsalada(ens.id, ens.estado_activo)}
                         />
                         <div className="w-11 h-6 bg-gray-300 rounded-full peer peer-checked:bg-green-500 transition-colors"></div>
-                        <div className="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition-transform peer-checked:translate-x-5"></div>
+                        <div className="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition-transform peer-checked:translate-x-5 shadow-sm"></div>
                       </div>
-                      <span className="ml-2 text-xs font-bold text-gray-700 hidden sm:inline">{ens.estado_activo ? 'Disponible' : 'Agotada'}</span>
                     </label>
                   </div>
                 ))}

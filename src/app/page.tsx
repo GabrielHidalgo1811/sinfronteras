@@ -12,6 +12,8 @@ export default function Home() {
   const [selectedDish, setSelectedDish] = useState<any | null>(null);
   const [showSuccess, setShowSuccess] = useState(false);
 
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
+
   const fetchData = async () => {
     // Fetch categorías
     const { data: cats } = await supabase.from('categorias').select('*').order('orden', { ascending: true });
@@ -43,6 +45,12 @@ export default function Home() {
     }
   }, []);
 
+  useEffect(() => {
+    if (!loading) {
+      setTimeout(() => setIsInitialLoad(false), 500); // Wait half a second before sliding up
+    }
+  }, [loading]);
+
   const handleReservationSuccess = () => {
     setSelectedDish(null);
     setShowSuccess(true);
@@ -51,13 +59,14 @@ export default function Home() {
 
   return (
     <main className="min-h-screen bg-pogonia-bg pb-12">
-      <header className="bg-white shadow-sm py-8 mb-12 rounded-b-[40px] text-center">
+      <header className={`bg-white shadow-sm rounded-b-[40px] text-center flex flex-col justify-center items-center transition-all duration-1000 ease-in-out ${isInitialLoad ? 'fixed inset-0 z-50 rounded-none' : 'py-8 mb-12 relative z-10'}`}>
         <div className="container mx-auto px-4">
-          <img src="/logo.png" alt="Colaciones Sin Frontera" className="w-28 h-28 mx-auto mb-4 rounded-full object-cover shadow-md" />
-          <h1 className="text-4xl md:text-5xl font-heading text-pogonia-fg tracking-tight mb-4">
+          <img src="/logo.png" alt="Colaciones Sin Frontera" className={`mx-auto mb-4 rounded-full object-cover shadow-md transition-all duration-1000 ${isInitialLoad ? 'w-48 h-48 sm:w-64 sm:h-64 animate-pulse' : 'w-28 h-28'}`} />
+          <h1 className={`font-heading text-pogonia-fg tracking-tight mb-4 transition-all duration-1000 ${isInitialLoad ? 'text-5xl md:text-7xl' : 'text-4xl md:text-5xl'}`}>
+            {isInitialLoad && <span className="block text-2xl md:text-4xl mb-2 text-gray-500">Bienvenido a</span>}
             Colaciones <span className="text-pogonia-orange">Sin Frontera</span>
           </h1>
-          <p className="text-gray-500 font-medium text-lg max-w-lg mx-auto">
+          <p className={`text-gray-500 font-medium transition-all duration-1000 ${isInitialLoad ? 'text-xl md:text-2xl opacity-80 max-w-2xl' : 'text-lg max-w-lg'} mx-auto`}>
             Comida peruana, chilena y venezolana directa a tu mesa.
           </p>
         </div>

@@ -26,6 +26,7 @@ export default function BookingModal({ dish, onClose, onSuccess, isPOS = false }
     telefono: '',
     hora_retiro: '',
     notas: '',
+    tipo_entrega: 'Para servir', // default
   });
 
   const [options, setOptions] = useState({
@@ -76,7 +77,7 @@ export default function BookingModal({ dish, onClose, onSuccess, isPOS = false }
         ensalada_id: options.ensalada_id || null,
         agregado_id: options.agregado_id || null,
         agregado_2_id: options.agregado_2_id || null,
-        notas: formData.notas || '',
+        notas: (formData.tipo_entrega ? `[${formData.tipo_entrega}] ` : '') + (formData.notas || ''),
         estado: 'pendiente'
       };
 
@@ -235,6 +236,20 @@ export default function BookingModal({ dish, onClose, onSuccess, isPOS = false }
             {!isPOS && (
               <>
                 <div>
+                  <label className="block font-heading font-bold text-pogonia-fg mb-2">¿Cómo deseas tu pedido?</label>
+                  <div className="flex gap-4">
+                    <label className="flex-1 border-2 border-gray-200 rounded-2xl p-4 cursor-pointer hover:border-pogonia-orange transition-colors flex items-center justify-center gap-2">
+                      <input type="radio" name="tipo_entrega" value="Para llevar" checked={formData.tipo_entrega === 'Para llevar'} onChange={handleChange} required className="accent-pogonia-orange" />
+                      <span className="font-bold text-gray-700">🥡 Para Llevar</span>
+                    </label>
+                    <label className="flex-1 border-2 border-gray-200 rounded-2xl p-4 cursor-pointer hover:border-pogonia-orange transition-colors flex items-center justify-center gap-2">
+                      <input type="radio" name="tipo_entrega" value="Para servir" checked={formData.tipo_entrega === 'Para servir'} onChange={handleChange} required className="accent-pogonia-orange" />
+                      <span className="font-bold text-gray-700">🍽️ Para Servir</span>
+                    </label>
+                  </div>
+                </div>
+
+                <div>
                   <label htmlFor="telefono" className="block font-heading font-bold text-pogonia-fg mb-2">Teléfono</label>
                   <input 
                     id="telefono" 
@@ -248,11 +263,13 @@ export default function BookingModal({ dish, onClose, onSuccess, isPOS = false }
                   />
                 </div>
                 <div>
-                  <label htmlFor="hora_retiro" className="block font-heading font-bold text-pogonia-fg mb-2">Hora de Retiro</label>
+                  <label htmlFor="hora_retiro" className="block font-heading font-bold text-pogonia-fg mb-2">Hora de Retiro (12:00 PM - 08:00 PM)</label>
                   <input 
                     id="hora_retiro" 
                     name="hora_retiro" 
                     type="time" 
+                    min="12:00"
+                    max="20:00"
                     required 
                     value={formData.hora_retiro} 
                     onChange={handleChange} 
