@@ -19,6 +19,7 @@ type Pedido = {
   ensalada_id: string | null
   agregado_id: string | null
   agregado_2_id: string | null
+  notas: string | null
   estado: string
   created_at: string
   platos?: { nombre: string }
