@@ -51,8 +51,9 @@ export default function Home() {
 
   return (
     <main className="min-h-screen bg-pogonia-bg pb-12">
-      <header className="bg-white shadow-sm py-12 mb-12 rounded-b-[40px] text-center">
+      <header className="bg-white shadow-sm py-8 mb-12 rounded-b-[40px] text-center">
         <div className="container mx-auto px-4">
+          <img src="/logo.png" alt="Colaciones Sin Frontera" className="w-28 h-28 mx-auto mb-4 rounded-full object-cover shadow-md" />
           <h1 className="text-4xl md:text-5xl font-heading text-pogonia-fg tracking-tight mb-4">
             Colaciones <span className="text-pogonia-orange">Sin Frontera</span>
           </h1>
