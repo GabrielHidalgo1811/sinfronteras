@@ -44,7 +44,7 @@ export default function AdminPage() {
   const handleToggleActive = async (id: string, current: boolean) => {
     let newQty = 0;
     if (!current) {
-      const promptQty = prompt('Cantidad de servicios para hoy:')
+      const promptQty = prompt('¿Cuántos platos hay disponibles hoy?')
       if (promptQty === null) return;
       newQty = parseInt(promptQty) || 0
     }
@@ -251,7 +251,9 @@ export default function AdminPage() {
                             <input 
                               type="number" 
                               className="w-16 p-1.5 border-2 border-gray-200 rounded-lg text-center text-sm font-bold focus:border-pogonia-orange outline-none" 
-                              value={plato.cantidad_diaria} 
+                              value={plato.cantidad_diaria || ''} 
+                              placeholder="0"
+                              onFocus={e => e.target.select()}
                               onChange={e => handleUpdateQty(plato.id, parseInt(e.target.value) || 0)} 
                             />
                           </div>
