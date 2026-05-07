@@ -65,7 +65,10 @@ export default function AdminPage() {
 
   const handleCreateDish = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!newDish.nombre || !newDish.categoria_id) return
+    if (!newDish.nombre || !newDish.categoria_id) {
+      alert('Por favor completa el nombre y la categoría del plato.')
+      return
+    }
 
     let imagen_url = ''
     if (file) {
@@ -74,22 +77,32 @@ export default function AdminPage() {
         .from('platos_images')
         .upload(fileName, file)
       
-      if (!uploadError) {
+      if (uploadError) {
+        console.error('Error subiendo imagen:', uploadError)
+        // Continue without image
+      } else {
         const { data: publicUrlData } = supabase.storage.from('platos_images').getPublicUrl(fileName)
         imagen_url = publicUrlData.publicUrl
       }
     }
 
-    await supabase.from('platos').insert([{
+    const { error: insertError } = await supabase.from('platos').insert([{
       nombre: newDish.nombre,
       categoria_id: newDish.categoria_id,
       imagen_url
     }])
 
+    if (insertError) {
+      alert(`❌ Error al crear el plato: ${insertError.message}`)
+      console.error('Insert error:', insertError)
+      return
+    }
+
     setNewDish({ nombre: '', categoria_id: '' })
     setFile(null)
     setShowNewDishForm(false)
     fetchData()
+    alert('✅ Plato creado correctamente')
   }
 
   const handleCreateEnsalada = async (e: React.FormEvent) => {
