@@ -1,0 +1,108 @@
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+  padding: 1rem;
+}
+
+.modal {
+  background-color: var(--white);
+  padding: 2rem;
+  border-radius: var(--radius-lg);
+  width: 100%;
+  max-width: 450px;
+  position: relative;
+  box-shadow: var(--shadow-lg);
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.closeBtn {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  font-size: 1.5rem;
+  line-height: 1;
+  color: var(--gray-400);
+}
+
+.closeBtn:hover {
+  color: var(--foreground);
+}
+
+.title {
+  font-size: 1.75rem;
+  margin-bottom: 1.5rem;
+  text-align: center;
+  color: var(--primary);
+  font-family: var(--font-heading), sans-serif;
+}
+
+.dishInfo {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  background-color: var(--background);
+  border-radius: var(--radius);
+}
+
+.thumb {
+  width: 60px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: var(--radius);
+}
+
+.dishName {
+  font-weight: 700;
+  font-family: var(--font-heading), sans-serif;
+}
+
+.dishPrice {
+  color: var(--primary);
+  font-weight: 700;
+}
+
+.formGroup {
+  margin-bottom: 1rem;
+}
+
+.formGroup label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: var(--foreground);
+}
+
+.switchesGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.divider {
+  border: none;
+  border-top: 1px dashed var(--gray-200);
+  margin: 1.5rem 0;
+}
+
+.error {
+  background-color: #fee2e2;
+  color: var(--danger);
+  padding: 0.75rem;
+  border-radius: var(--radius);
+  margin-bottom: 1rem;
+  font-size: 0.875rem;
+  text-align: center;
+}

@@ -1,0 +1,50 @@
+@import "tailwindcss";
+
+@theme {
+  --color-pogonia-bg: #F9F9F7;
+  --color-pogonia-fg: #1A1A1A;
+  --color-pogonia-orange: #FF5F00;
+  
+  --font-heading: var(--font-heading), 'Montserrat', sans-serif;
+  --font-body: var(--font-body), 'Inter', sans-serif;
+}
+
+@layer base {
+  body {
+    background-color: var(--color-pogonia-bg);
+    color: var(--color-pogonia-fg);
+    font-family: var(--font-body);
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-heading);
+    font-weight: 800; /* Extra bold */
+    letter-spacing: -0.02em;
+  }
+}
+
+/* ===== Realtime Animations ===== */
+@keyframes newOrderGlow {
+  0% { box-shadow: 0 0 0 0 rgba(255, 95, 0, 0.6); transform: scale(1); }
+  30% { box-shadow: 0 0 25px 8px rgba(255, 95, 0, 0.4); transform: scale(1.02); }
+  60% { box-shadow: 0 0 12px 4px rgba(255, 95, 0, 0.2); transform: scale(1.01); }
+  100% { box-shadow: 0 0 0 0 rgba(255, 95, 0, 0); transform: scale(1); }
+}
+
+@keyframes slideInUp {
+  from { opacity: 0; transform: translateY(24px) scale(0.96); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes fadeOutDown {
+  from { opacity: 1; transform: scale(1); }
+  to { opacity: 0; transform: scale(0.92) translateY(12px); }
+}
+
+.order-new {
+  animation: slideInUp 0.4s ease-out, newOrderGlow 1.5s ease-out;
+}
+
+.order-completing {
+  animation: fadeOutDown 0.35s ease-in forwards;
+}
