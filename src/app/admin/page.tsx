@@ -42,13 +42,8 @@ export default function AdminPage() {
   }, [])
 
   const handleToggleActive = async (id: string, current: boolean) => {
-    let newQty = 0;
-    if (!current) {
-      const promptQty = prompt('¿Cuántos platos hay disponibles hoy?')
-      if (promptQty === null) return;
-      newQty = parseInt(promptQty) || 0
-    }
-    
+    // Al activar, pone stock en 10 por defecto. El admin lo ajusta con la ruleta.
+    const newQty = !current ? 10 : 0
     await supabase.from('platos').update({ estado_activo: !current, cantidad_diaria: newQty }).eq('id', id)
     fetchData()
   }
@@ -248,14 +243,15 @@ export default function AdminPage() {
                         {plato.estado_activo && (
                           <div className="flex items-center gap-2">
                             <span className="text-xs font-bold text-gray-700">Stock:</span>
-                            <input 
-                              type="number" 
-                              className="w-16 p-1.5 border-2 border-gray-200 rounded-lg text-center text-sm font-bold focus:border-pogonia-orange outline-none" 
-                              value={plato.cantidad_diaria || ''} 
-                              placeholder="0"
-                              onFocus={e => e.target.select()}
-                              onChange={e => handleUpdateQty(plato.id, parseInt(e.target.value) || 0)} 
-                            />
+                            <select
+                              className="w-16 p-1.5 border-2 border-gray-200 rounded-lg text-center text-sm font-bold focus:border-pogonia-orange outline-none bg-white"
+                              value={plato.cantidad_diaria}
+                              onChange={e => handleUpdateQty(plato.id, parseInt(e.target.value))}
+                            >
+                              {Array.from({ length: 101 }, (_, i) => (
+                                <option key={i} value={i}>{i}</option>
+                              ))}
+                            </select>
                           </div>
                         )}
                         
