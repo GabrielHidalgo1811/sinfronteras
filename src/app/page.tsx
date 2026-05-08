@@ -61,10 +61,10 @@ export default function Home() {
     <main className="min-h-screen bg-pogonia-bg pb-12">
       <header className={`bg-white shadow-sm rounded-b-[40px] text-center flex flex-col justify-center items-center transition-all duration-1000 ease-in-out ${isInitialLoad ? 'fixed inset-0 z-50 rounded-none' : 'py-8 mb-12 relative z-10'}`}>
         <div className="container mx-auto px-4">
-          <img src="/logo.png" alt="Colaciones Sin Frontera" className={`mx-auto mb-4 rounded-full object-cover shadow-md transition-all duration-1000 ${isInitialLoad ? 'w-48 h-48 sm:w-64 sm:h-64 animate-pulse' : 'w-28 h-28'}`} />
+          <img src="/logo.png" alt="Sabor sin Fronteras" className={`mx-auto mb-4 rounded-full object-cover shadow-md transition-all duration-1000 ${isInitialLoad ? 'w-48 h-48 sm:w-64 sm:h-64 animate-pulse' : 'w-28 h-28'}`} />
           <h1 className={`font-heading text-pogonia-fg tracking-tight mb-4 transition-all duration-1000 ${isInitialLoad ? 'text-5xl md:text-7xl' : 'text-4xl md:text-5xl'}`}>
             {isInitialLoad && <span className="block text-2xl md:text-4xl mb-2 text-gray-500">Bienvenido a</span>}
-            Colaciones <span className="text-pogonia-orange">Sin Frontera</span>
+            Sabor <span className="text-pogonia-orange">sin Fronteras</span>
           </h1>
           <p className={`text-gray-500 font-medium transition-all duration-1000 ${isInitialLoad ? 'text-xl md:text-2xl opacity-80 max-w-2xl' : 'text-lg max-w-lg'} mx-auto`}>
             Comida peruana, chilena y venezolana directa a tu mesa.
@@ -131,7 +131,7 @@ export default function Home() {
 
       {/* Footer Minimalista */}
       <footer className="text-center py-8 text-gray-500 font-medium mt-12 border-t border-gray-100">
-        <p>© {new Date().getFullYear()} Colaciones Sin Frontera. Todos los derechos reservados.</p>
+        <p>© {new Date().getFullYear()} Sabor sin Fronteras. Todos los derechos reservados.</p>
         <div className="mt-4">
           <a href="/login" className="text-sm font-bold hover:text-pogonia-orange transition-colors">
             Acceso Admin
@@ -141,7 +141,7 @@ export default function Home() {
 
       {/* Botón flotante WhatsApp */}
       <a
-        href="https://wa.me/56942531987?text=Hola%2C%20quiero%20hacer%20un%20pedido%20🍽️"
+        href="https://wa.me/56942195387?text=Hola%2C%20quiero%20hacer%20un%20pedido%20🍽️"
         target="_blank"
         rel="noopener noreferrer"
         className="fixed bottom-6 right-6 z-50 flex items-center gap-2 bg-[#25D366] text-white font-bold py-3 px-5 rounded-full shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 transition-all group"

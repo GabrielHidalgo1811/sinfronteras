@@ -161,12 +161,11 @@ export default function BookingModal({ dish, onClose, onSuccess, isPOS = false }
               <select 
                 id="ensalada_id" 
                 name="ensalada_id" 
-                required
                 value={options.ensalada_id} 
                 onChange={handleOptionsChange} 
                 className="w-full p-4 border-2 border-gray-200 rounded-2xl outline-none focus:border-pogonia-orange transition-colors font-medium bg-white"
               >
-                <option value="">Selecciona una opción...</option>
+                <option value="">Ninguna</option>
                 {ensaladas.map(ens => (
                   <option key={ens.id} value={ens.id}>{ens.nombre}</option>
                 ))}

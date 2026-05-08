@@ -51,6 +51,9 @@ export async function checkAndCloseDayIfNeeded(): Promise<{ isNewDay: boolean; c
     }
   }
 
+  // Deactivate all active dishes for the new day
+  await supabase.from('platos').update({ estado_activo: false, cantidad_diaria: 0 }).eq('estado_activo', true)
+
   return { isNewDay: true, closedDate: yesterdayStr }
 }
 

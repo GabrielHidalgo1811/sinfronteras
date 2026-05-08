@@ -7,6 +7,7 @@ export default function AdminPage() {
   const [platos, setPlatos] = useState<any[]>([])
   const [categorias, setCategorias] = useState<any[]>([])
   const [ensaladas, setEnsaladas] = useState<any[]>([])
+  const [agregados, setAgregados] = useState<any[]>([])
   const [pedidos, setPedidos] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
 
@@ -16,6 +17,11 @@ export default function AdminPage() {
   const [newEnsalada, setNewEnsalada] = useState('')
   const [editingEnsalada, setEditingEnsalada] = useState<string | null>(null)
   const [editEnsaladaName, setEditEnsaladaName] = useState('')
+
+  const [showNewAgregadoForm, setShowNewAgregadoForm] = useState(false)
+  const [newAgregado, setNewAgregado] = useState('')
+  const [editingAgregado, setEditingAgregado] = useState<string | null>(null)
+  const [editAgregadoName, setEditAgregadoName] = useState('')
 
   const [newDish, setNewDish] = useState({ nombre: '', categoria_id: '' })
   const [file, setFile] = useState<File | null>(null)
@@ -29,11 +35,13 @@ export default function AdminPage() {
     const { data: platosData } = await supabase.from('platos').select('*, categorias(nombre)').order('created_at', { ascending: false })
     const { data: pedidosData } = await supabase.from('pedidos').select('*, platos(nombre)')
     const { data: ensaladasData } = await supabase.from('ensaladas').select('*').order('created_at', { ascending: false })
+    const { data: agregadosData } = await supabase.from('agregados').select('*').order('created_at', { ascending: false })
     
     if (catsData) setCategorias(catsData)
     if (platosData) setPlatos(platosData)
     if (pedidosData) setPedidos(pedidosData)
     if (ensaladasData) setEnsaladas(ensaladasData)
+    if (agregadosData) setAgregados(agregadosData)
     setLoading(false)
   }
 
@@ -53,6 +61,12 @@ export default function AdminPage() {
     // Actualización optimista
     setEnsaladas(prev => prev.map(e => e.id === id ? { ...e, estado_activo: !current } : e))
     supabase.from('ensaladas').update({ estado_activo: !current }).eq('id', id).then(() => fetchData())
+  }
+
+  const handleToggleAgregado = async (id: string, current: boolean) => {
+    // Actualización optimista
+    setAgregados(prev => prev.map(a => a.id === id ? { ...a, estado_activo: !current } : a))
+    supabase.from('agregados').update({ estado_activo: !current }).eq('id', id).then(() => fetchData())
   }
 
   const handleUpdateQty = async (id: string, qty: number) => {
@@ -121,6 +135,28 @@ export default function AdminPage() {
     if (!editEnsaladaName) return
     await supabase.from('ensaladas').update({ nombre: editEnsaladaName }).eq('id', id)
     setEditingEnsalada(null)
+    fetchData()
+  }
+
+  const handleCreateAgregado = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!newAgregado) return
+
+    await supabase.from('agregados').insert([{
+      nombre: newAgregado,
+      estado_activo: true
+    }])
+
+    setNewAgregado('')
+    setShowNewAgregadoForm(false)
+    fetchData()
+  }
+
+  const handleUpdateAgregado = async (e: React.FormEvent, id: string) => {
+    e.preventDefault()
+    if (!editAgregadoName) return
+    await supabase.from('agregados').update({ nombre: editAgregadoName }).eq('id', id)
+    setEditingAgregado(null)
     fetchData()
   }
 
@@ -336,6 +372,76 @@ export default function AdminPage() {
                           className="sr-only peer" 
                           checked={ens.estado_activo}
                           onChange={() => handleToggleEnsalada(ens.id, ens.estado_activo)}
+                        />
+                        <div className="w-11 h-6 bg-gray-300 rounded-full peer peer-checked:bg-green-500 transition-colors"></div>
+                        <div className="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition-transform peer-checked:translate-x-5 shadow-sm"></div>
+                      </div>
+                    </label>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </section>
+
+          {/* ======== GESTIÓN DE AGREGADOS ======== */}
+          <section className="bg-white rounded-[24px] shadow-sm overflow-hidden">
+            <div className="p-5 sm:p-8">
+              <div className="flex items-center justify-between mb-5">
+                <h2 className="text-xl sm:text-2xl font-heading text-pogonia-fg">Gestión de Agregados</h2>
+                <button 
+                  onClick={() => setShowNewAgregadoForm(!showNewAgregadoForm)}
+                  className="bg-pogonia-orange text-white font-bold py-2 px-4 rounded-xl hover:bg-orange-600 transition-colors text-sm"
+                >
+                  {showNewAgregadoForm ? 'Cancelar' : '➕ Añadir'}
+                </button>
+              </div>
+
+              {showNewAgregadoForm && (
+                <form onSubmit={handleCreateAgregado} className="flex gap-3 mb-5">
+                  <input 
+                    className="flex-1 p-3 border-2 border-gray-200 rounded-xl focus:border-pogonia-orange outline-none text-sm" 
+                    placeholder="Nombre del agregado (ej. Arroz)" 
+                    value={newAgregado} 
+                    onChange={e => setNewAgregado(e.target.value)} 
+                    required 
+                  />
+                  <button type="submit" className="bg-pogonia-orange text-white font-bold py-3 px-5 rounded-xl hover:bg-orange-600 transition-colors text-sm whitespace-nowrap">
+                    Crear
+                  </button>
+                </form>
+              )}
+
+              <div className="flex flex-col gap-3">
+                {agregados.map(ag => (
+                  <div key={ag.id} className="flex items-center justify-between bg-pogonia-bg p-3 sm:p-4 rounded-2xl gap-3">
+                    {editingAgregado === ag.id ? (
+                      <form onSubmit={(e) => handleUpdateAgregado(e, ag.id)} className="flex flex-1 gap-3">
+                        <input className="flex-1 p-2 border-2 border-gray-200 rounded-xl outline-none text-sm" value={editAgregadoName} onChange={e => setEditAgregadoName(e.target.value)} required />
+                        <button type="submit" className="bg-green-500 text-white font-bold py-2 px-3 rounded-xl text-sm">OK</button>
+                        <button type="button" onClick={() => setEditingAgregado(null)} className="bg-gray-400 text-white font-bold py-2 px-3 rounded-xl text-sm">✕</button>
+                      </form>
+                    ) : (
+                      <div className="flex items-center gap-3 min-w-0">
+                        <p className="font-heading font-bold text-base text-pogonia-fg truncate">{ag.nombre}</p>
+                        <button 
+                          onClick={() => {
+                            setEditingAgregado(ag.id)
+                            setEditAgregadoName(ag.nombre)
+                          }}
+                          className="text-xs bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-1 px-2 rounded-lg transition-colors flex-shrink-0"
+                        >
+                          ✏️
+                        </button>
+                      </div>
+                    )}
+                    
+                    <label className="flex items-center cursor-pointer flex-shrink-0">
+                      <div className="relative">
+                        <input 
+                          type="checkbox" 
+                          className="sr-only peer" 
+                          checked={ag.estado_activo}
+                          onChange={() => handleToggleAgregado(ag.id, ag.estado_activo)}
                         />
                         <div className="w-11 h-6 bg-gray-300 rounded-full peer peer-checked:bg-green-500 transition-colors"></div>
                         <div className="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition-transform peer-checked:translate-x-5 shadow-sm"></div>

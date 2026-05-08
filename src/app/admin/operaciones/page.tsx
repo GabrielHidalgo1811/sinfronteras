@@ -29,6 +29,7 @@ type Pedido = {
 
 export default function OperacionesPage() {
   const [tab, setTab] = useState<'mesonero' | 'cocina'>('mesonero')
+  const [cocinaTab, setCocinaTab] = useState<'activos' | 'finalizados'>('activos')
   const [selectedPlato, setSelectedPlato] = useState<any>(null)
   
   const [categorias, setCategorias] = useState<any[]>([])
@@ -47,7 +48,7 @@ export default function OperacionesPage() {
     const [catsRes, platosRes, pedidosRes, agregadosRes] = await Promise.all([
       supabase.from('categorias').select('*').order('orden', { ascending: true }),
       supabase.from('platos').select('*, categorias(nombre, precio)').eq('estado_activo', true),
-      supabase.from('pedidos').select('*, platos(nombre), ensaladas(nombre)').in('estado', ['pendiente', 'terminado']),
+      supabase.from('pedidos').select('*, platos(nombre), ensaladas(nombre)').in('estado', ['pendiente', 'terminado', 'retirado']),
       supabase.from('agregados').select('*'),
     ])
     
@@ -110,8 +111,37 @@ export default function OperacionesPage() {
       })
       .subscribe()
 
+    // Auto-finish orders older than 10 mins
+    const interval = setInterval(async () => {
+      const now = new Date().getTime();
+      const tenMins = 10 * 60 * 1000;
+      
+      setPedidos(currentPedidos => {
+        const ordersToFinish = currentPedidos.filter(p => 
+          p.estado === 'pendiente' && 
+          (now - new Date(p.created_at).getTime() > tenMins)
+        );
+
+        if (ordersToFinish.length > 0) {
+          ordersToFinish.forEach(async p => {
+            const nuevoEstado = p.tipo === 'presencial' ? 'retirado' : 'terminado';
+            await supabase.from('pedidos').update({ estado: nuevoEstado }).eq('id', p.id);
+          });
+          
+          return currentPedidos.map(p => {
+            if (ordersToFinish.find(o => o.id === p.id)) {
+              return { ...p, estado: p.tipo === 'presencial' ? 'retirado' : 'terminado' };
+            }
+            return p;
+          });
+        }
+        return currentPedidos;
+      });
+    }, 60000); // check every minute
+
     return () => {
       supabase.removeChannel(channel)
+      clearInterval(interval)
     }
   }, [fetchData])
 
@@ -166,9 +196,11 @@ export default function OperacionesPage() {
     }, 350)
   }
 
-  // Sort: presencial first, then reservas by hora_retiro, then by created_at
   const pedidosKDS = [...pedidos]
-    .filter(p => p.estado === 'pendiente' || (p.estado === 'terminado' && p.tipo === 'reserva'))
+    .filter(p => cocinaTab === 'activos' 
+      ? p.estado === 'pendiente' || (p.estado === 'terminado' && p.tipo === 'reserva')
+      : p.estado === 'retirado' || (p.estado === 'terminado' && p.tipo === 'presencial') // just in case
+    )
     .sort((a, b) => {
       if (a.tipo === 'presencial' && b.tipo !== 'presencial') return -1
       if (a.tipo !== 'presencial' && b.tipo === 'presencial') return 1
@@ -248,10 +280,29 @@ export default function OperacionesPage() {
 
           {/* ========== COCINA ========== */}
           {tab === 'cocina' && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 items-start">
-              {pedidosKDS.length === 0 && (
-                <p className="text-xl sm:text-2xl text-gray-400 font-heading col-span-full text-center py-20">No hay pedidos pendientes en cocina. 🎉</p>
-              )}
+            <div className="flex flex-col gap-6">
+              {/* Sub-tabs Activos / Finalizados */}
+              <div className="flex bg-gray-100 p-1 rounded-2xl w-fit">
+                <button
+                  className={`px-6 py-2.5 rounded-xl font-bold transition-all ${cocinaTab === 'activos' ? 'bg-white text-pogonia-orange shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+                  onClick={() => setCocinaTab('activos')}
+                >
+                  Activos
+                </button>
+                <button
+                  className={`px-6 py-2.5 rounded-xl font-bold transition-all ${cocinaTab === 'finalizados' ? 'bg-white text-pogonia-orange shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+                  onClick={() => setCocinaTab('finalizados')}
+                >
+                  Finalizados
+                </button>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 items-start">
+                {pedidosKDS.length === 0 && (
+                  <p className="text-xl sm:text-2xl text-gray-400 font-heading col-span-full text-center py-20">
+                    {cocinaTab === 'activos' ? 'No hay pedidos pendientes en cocina. 🎉' : 'Aún no hay pedidos finalizados.'}
+                  </p>
+                )}
               
               {pedidosKDS.map(pedido => {
                 const isPresencial = pedido.tipo === 'presencial'
@@ -312,7 +363,7 @@ export default function OperacionesPage() {
                         )}
                       </ul>
 
-                      {pedido.estado === 'pendiente' && (
+                      {cocinaTab === 'activos' && pedido.estado === 'pendiente' && (
                         <button 
                           disabled={isCompleting}
                           className="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3.5 rounded-xl transition-colors disabled:opacity-50" 
@@ -322,19 +373,20 @@ export default function OperacionesPage() {
                         </button>
                       )}
 
-                      {pedido.estado === 'terminado' && pedido.tipo === 'reserva' && (
+                      {cocinaTab === 'activos' && pedido.estado === 'terminado' && pedido.tipo === 'reserva' && (
                         <button 
                           disabled={isCompleting}
                           className="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-3.5 rounded-xl transition-colors disabled:opacity-50" 
                           onClick={() => handleRetirarReserva(pedido.id)}
                         >
-                          📦 Pedido Listo
+                          📦 Entregar Reserva
                         </button>
                       )}
                     </div>
                   </div>
                 )
               })}
+              </div>
             </div>
           )}
         </>
